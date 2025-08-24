@@ -1,6 +1,9 @@
 <h1 align="center">
     Solis command line utility
 </h1>
+<h3 align="center">
+    Version 0.0.1
+</h3>
 
 This repository hosts the source code for the `solis` command line tool that aims to ease
 the management of solis projects: from their creation to their packaging.
