@@ -11,12 +11,7 @@ from arguments import AppArgs
 
 if __name__ == "__main__":
     t = AppArgs()
-    print(AppArgs.__dict__)
-    print(t.__dict__)
-    print()
-
-    t2 = AppArgs(test2="miam", test3="sdfsdfsd")
-    print(t2.__dict__)
-    print()
-    print(t.__dict__)
-
+    parser = t.generate_parser()
+    # print(AppArgs.__dict__)
+    # print(t.__dict__)
+    # print()

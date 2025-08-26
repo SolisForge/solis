@@ -13,4 +13,5 @@ from solis_lib.arguments import Argument, ArgumentList
 class AppArgs:
     test = Argument("-t",default=0.0)
     test2 = Argument("-y",default="hello")
+    alpha = Argument("-y",default="hello")
 

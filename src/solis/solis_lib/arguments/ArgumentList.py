@@ -38,9 +38,18 @@ def __def_init__(self, **kwargs):
                 setattr(self, field, kwargs[field])
 
 
-def _generate_parser()->ArgumentParser:
-    pass
+def _generate_parser(self, **kwargs) -> ArgumentParser:
+    """
+    Generate an argument parser for the given argument list.
 
+    :param self: the argument list instance
+    :param kwargs: any arguments that could be needed
+    :return: an instantiated and configured argument parser
+    """
+    parser = ArgumentParser()
+    print(self.__dict__)
+
+    return parser
 
 
 def _argument_list_wrapper(cls, **kwargs):
@@ -51,10 +60,11 @@ def _argument_list_wrapper(cls, **kwargs):
     It also set up annotations.
 
     :param cls: the class to modify
-    :param kwargs:
+    :param kwargs: the arguments to use for modifying the class
     :return: a modified class
     """
     # Shift fields to instances
+    print(cls.__dict__, end="\n\n")
     cls._arg_default = {k: v for k, v in cls.__dict__.items() if not k.startswith("_")}
     for k, _ in cls._arg_default.items():
         delattr(cls, k)
@@ -62,6 +72,7 @@ def _argument_list_wrapper(cls, **kwargs):
 
     # Set up the initialization function
     cls.__init__ = __def_init__
+    cls.generate_parser = _generate_parser
 
     # Shift annotation of the fields
     cls._arg_annotations = {}
@@ -71,8 +82,18 @@ def _argument_list_wrapper(cls, **kwargs):
 
     return cls
 
+
 @dataclass_transform()
 def ArgumentList(cls: Optional[Type] = None, **kwargs):
+    """
+    Decorator to use when declaring a new argument list.
+    It will take care of making it a dataclass and of the initialization
+    of the instance.
+
+    :param cls: the class to modify
+    :param kwargs: the arguments that could be used for this decorator
+    :return: a modified class
+    """
     if cls is None:
         return lambda c: _argument_list_wrapper(c, **kwargs)
     return _argument_list_wrapper(cls, **kwargs)
