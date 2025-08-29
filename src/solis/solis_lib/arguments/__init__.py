@@ -1,2 +1,2 @@
-from .Argument import Argument
+from .Argument import Argument, TypedArgument
 from .ArgumentList import ArgumentList

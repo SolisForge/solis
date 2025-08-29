@@ -4,14 +4,16 @@
 # This file describes the arguments of the solis command line utility.
 #
 # Author: Meltwin
-# Last modified: 25/08/2025
+# Last modified: 29/08/2025
 # Version: 0.0.1
 # =============================================================================
-from solis_lib.arguments import Argument, ArgumentList
+from solis_lib.arguments import Argument, ArgumentList,TypedArgument
 
-@ArgumentList
-class AppArgs:
-    test = Argument("-t",default=0.0)
-    test2 = Argument("-y",default="hello")
-    alpha = Argument("-y",default="hello")
+class InitArgs(ArgumentList):
+    test = TypedArgument[bool]("-y")
 
+
+class AppArgs(ArgumentList):
+    init = InitArgs()
+
+    test = TypedArgument[str]("-y")
