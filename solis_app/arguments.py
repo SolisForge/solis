@@ -7,13 +7,13 @@
 # Last modified: 29/08/2025
 # Version: 0.0.1
 # =============================================================================
-from solis_lib.arguments import Argument, ArgumentList,TypedArgument
+from solis.utils.arguments import Argument, ArgumentList, TypedArgument
+
 
 class InitArgs(ArgumentList):
     test = TypedArgument[bool]("-y")
 
 
 class AppArgs(ArgumentList):
-    init = InitArgs()
-
     test = TypedArgument[str]("-y")
+    init = InitArgs()
