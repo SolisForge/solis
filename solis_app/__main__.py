@@ -11,8 +11,12 @@
 # =============================================================================
 from .arguments import AppArgs
 from .building.main import main as build_main
+from logging import config, getLogger
+from solis.resources import LOGGER_CONF
 
 if __name__ == "__main__":
+    config.fileConfig(LOGGER_CONF)
+    logger = getLogger()
     args = AppArgs().parse_args()
 
     match args.subparser:
