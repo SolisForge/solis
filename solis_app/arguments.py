@@ -1,19 +1,28 @@
 # =============================================================================
-#                                Solis | Argument class
+# Project: SOLIS_APP
 #
-# This file describes the arguments of the solis command line utility.
+# Arguments of the command line utility program.
 #
-# Author: Meltwin
-# Last modified: 29/08/2025
-# Version: 0.0.1
+# Author    Meltwin (github@meltwin.fr)
+# Date      28/10/2025 (created 20/10/2025)
+# Version   1.0.0
+# Copyright Solis Forge | 2025
+#           Distributed under MIT License (https://opensource.org/licenses/MIT)
 # =============================================================================
-from solis.utils.arguments import Argument, ArgumentList, TypedArgument
-
-
-class InitArgs(ArgumentList):
-    test = TypedArgument[bool]("-y")
+from argparse import ArgumentParser
+from solis.utils.arguments import ArgumentList, TypedArgument
+from solis.app.building import BuildingPipelineArguments
 
 
 class AppArgs(ArgumentList):
-    test = TypedArgument[str]("-y")
-    init = InitArgs()
+    make = BuildingPipelineArguments()
+    test = BuildingPipelineArguments()
+
+    # -------------------------------------------------------------------------
+    def make_parser(self) -> ArgumentParser:
+        parser = ArgumentParser(prog="solis")
+        return parser
+
+    # -------------------------------------------------------------------------
+    def subparser_text(self):
+        return "Which command to execute"
