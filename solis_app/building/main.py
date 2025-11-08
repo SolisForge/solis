@@ -36,8 +36,8 @@ def main(args: BuildingPipelineArguments):
     if wanted_step >= PipelineStep.CONFIGURE:
         step_configure(pkg_info)
     if wanted_step >= PipelineStep.BUILD:
-        step_build()
+        step_build(pkg_info)
     if wanted_step >= PipelineStep.INSTALL:
-        step_install()
+        step_install(pkg_info)
     if wanted_step >= PipelineStep.PACKAGE:
         step_package()

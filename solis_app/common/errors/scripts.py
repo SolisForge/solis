@@ -16,3 +16,10 @@ class CMakeNotFoundError(Exception):
     """
     Could not find the CMake executable
     """
+
+
+# =============================================================================
+class GeneratorNotFoundError(Exception):
+    """
+    Could not find the generator executable
+    """

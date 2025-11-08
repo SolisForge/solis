@@ -61,7 +61,7 @@ def get_cmake_executable() -> tuple[str, str]:
 
     # Try to call "cmake --version" to check if present
     stdout = check_output([cmake_exe, "--version"], encoding="utf-8").strip()
-    cmake_version = match("^cmake version ([0-9]+\.[0-9]+\.[0-9]+)", stdout)
+    cmake_version = match(r"^cmake version ([0-9]+\.[0-9]+\.[0-9]+)", stdout)
     if cmake_version is None:
         raise CMakeNotFoundError("could not find CMake as `cmake`")
     return cmake_exe, cmake_version.group(1)
