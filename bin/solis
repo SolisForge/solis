@@ -2,4 +2,4 @@
 
 SOLIS_APP_PY="python3 -m solis.app"
 
-$SOLIS_APP_PY "test"
+$SOLIS_APP_PY "$@"

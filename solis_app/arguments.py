@@ -21,6 +21,7 @@ class AppArgs(ArgumentList):
         "--level",
         "INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "FATAL"],
+        metavar="LEVEL",
     )
 
     # -------------------------------------------------------------------------
