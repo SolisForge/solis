@@ -9,7 +9,6 @@
 # Copyright Solis Forge | 2025
 #           Distributed under MIT License (https://opensource.org/licenses/MIT)
 # =============================================================================
-from pathlib import Path
 from solis.app.building import (
     BuildingPipelineArguments,
     PipelineStep,
@@ -20,22 +19,22 @@ from solis.app.building import (
 )
 from solis.app.common.index import IndexDatabase
 from solis.utils.types.enum import str_to_enum
+from ._resolve_pkg import resolve_package
 
 
+# =============================================================================
 def main(args: BuildingPipelineArguments):
     wanted_step = str_to_enum(PipelineStep, args.step.value)
 
+    # Get the package to build
+    pkg_info = resolve_package(args.package.value)
+
     # Register the package
-    IndexDatabase.register_package(
-        args.package.value,
-        Path.cwd().joinpath(args.package.value),
-        Path.cwd().joinpath(args.package.value, "build"),
-        Path.cwd().joinpath("install"),
-    )
+    IndexDatabase.register_package(pkg_info)
 
     # Execute steps
     if wanted_step >= PipelineStep.CONFIGURE:
-        step_configure()
+        step_configure(pkg_info)
     if wanted_step >= PipelineStep.BUILD:
         step_build()
     if wanted_step >= PipelineStep.INSTALL:

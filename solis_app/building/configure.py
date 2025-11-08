@@ -12,7 +12,34 @@
 from logging import getLogger
 from re import match
 from solis.app.common.errors.scripts import CMakeNotFoundError
-from subprocess import check_output
+from solis.app.common.index import PackageInfo
+from subprocess import check_output, run
+
+
+# =============================================================================
+def step_configure(package: PackageInfo) -> None:
+    """
+    Execute the configure step of the given project
+    """
+    logger = getLogger("configure")
+
+    try:
+        # Get CMake
+        cmake_exe, cmake_version = get_cmake_executable()
+        logger.info("Using CMake v%s", cmake_version)
+
+        # Run CMake in package's build folder
+        package.build_path.mkdir(exist_ok=True, parents=True)
+        run(
+            [
+                cmake_exe,
+                package.src_path,
+            ],
+            cwd=package.build_path,
+            check=True,
+        )
+    except Exception as e:
+        logger.critical("[%s] %s", e.__class__.__name__, str(e.args))
 
 
 # =============================================================================
@@ -38,17 +65,3 @@ def get_cmake_executable() -> tuple[str, str]:
     if cmake_version is None:
         raise CMakeNotFoundError("could not find CMake as `cmake`")
     return cmake_exe, cmake_version.group(1)
-
-
-# =============================================================================
-def step_configure() -> None:
-    """
-    Execute the configure step of the given project
-    """
-    logger = getLogger("configure")
-
-    try:
-        cmake_exe, cmake_version = get_cmake_executable()
-        logger.info("Using CMake v%s", cmake_version)
-    except Exception as e:
-        logger.critical("[%s] %s", e.__class__.__name__, str(e.args))
