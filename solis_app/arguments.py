@@ -17,9 +17,11 @@ from solis.app.building import BuildingPipelineArguments
 class AppArgs(ArgumentList):
     make = BuildingPipelineArguments()
 
+    # Log level configuration
     log_level = TypedArgument[str](
         "--level",
         "INFO",
+        "the log level to apply",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "FATAL"],
         metavar="LEVEL",
     )
