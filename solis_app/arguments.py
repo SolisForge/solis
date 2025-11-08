@@ -16,7 +16,12 @@ from solis.app.building import BuildingPipelineArguments
 
 class AppArgs(ArgumentList):
     make = BuildingPipelineArguments()
-    test = BuildingPipelineArguments()
+
+    log_level = TypedArgument[str](
+        "--level",
+        "INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "FATAL"],
+    )
 
     # -------------------------------------------------------------------------
     def make_parser(self) -> ArgumentParser:
