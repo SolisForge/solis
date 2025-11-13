@@ -14,11 +14,11 @@ from dataclasses import dataclass
 from enum import Enum
 from logging import getLogger
 from pathlib import Path
-from solis.utils.file_system import local_data_dir
+from solis.utils.file_system import app_data_dir
 from solis.utils.types.patterns import LazyInit
 
 
-INDEX_PATH = local_data_dir().joinpath("solis", "index")
+INDEX_PATH = app_data_dir().joinpath("solis", "index")
 
 
 # =============================================================================
