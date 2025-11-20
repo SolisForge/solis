@@ -34,6 +34,9 @@ def step_configure(package: PackageInfo) -> None:
             [
                 cmake_exe,
                 package.src_path,
+                # Set install prefix
+                f"-DCMAKE_INSTALL_PREFIX={package.install_path}",
+                # f"-DCMAKE_PREFIX_PATH={package.install_path}",
             ],
             cwd=package.build_path,
             check=True,
