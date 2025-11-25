@@ -25,4 +25,4 @@ if __name__ == "__main__":
 
     match args.subparser:
         case "make":
-            build_main(args.make)
+            build_main(args.make, args.log_level.value == "DEBUG")

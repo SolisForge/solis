@@ -17,7 +17,7 @@ from subprocess import check_output, run
 
 
 # =============================================================================
-def step_configure(package: PackageInfo) -> None:
+def step_configure(package: PackageInfo, debug: bool = False) -> None:
     """
     Execute the configure step of the given project
     """
@@ -28,16 +28,19 @@ def step_configure(package: PackageInfo) -> None:
         cmake_exe, cmake_version = get_cmake_executable()
         logger.info("Using CMake v%s", cmake_version)
 
-        # Run CMake in package's build folder
         package.build_path.mkdir(exist_ok=True, parents=True)
+        args = [
+            cmake_exe,
+            package.src_path,
+            # Set install prefix
+            f"-DCMAKE_INSTALL_PREFIX={package.install_path}",
+        ]
+        if debug:
+            args.append("--log-level=DEBUG")
+
+        # Run CMake in package's build folder
         run(
-            [
-                cmake_exe,
-                package.src_path,
-                # Set install prefix
-                f"-DCMAKE_INSTALL_PREFIX={package.install_path}",
-                # f"-DCMAKE_PREFIX_PATH={package.install_path}",
-            ],
+            args,
             cwd=package.build_path,
             check=True,
         )

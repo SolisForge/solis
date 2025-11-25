@@ -23,7 +23,7 @@ from ._resolve_pkg import resolve_package
 
 
 # =============================================================================
-def main(args: BuildingPipelineArguments):
+def main(args: BuildingPipelineArguments, debug: bool = False):
     wanted_step = str_to_enum(PipelineStep, args.step.value)
 
     # Get the package to build
@@ -34,7 +34,7 @@ def main(args: BuildingPipelineArguments):
 
     # Execute steps
     if wanted_step >= PipelineStep.CONFIGURE:
-        step_configure(pkg_info)
+        step_configure(pkg_info, debug)
     if wanted_step >= PipelineStep.BUILD:
         step_build(pkg_info)
     if wanted_step >= PipelineStep.INSTALL:
