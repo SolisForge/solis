@@ -17,27 +17,38 @@ from solis.app.building import (
     step_install,
     step_package,
 )
-from solis.app.common.index import IndexDatabase
+from solis.app.common.index import IndexDatabase, SolisPackage
 from solis.utils.types.enum import str_to_enum
-from ._resolve_pkg import resolve_package
 
 
 # =============================================================================
 def main(args: BuildingPipelineArguments, debug: bool = False):
     wanted_step = str_to_enum(PipelineStep, args.step.value)
 
-    # Get the package to build
-    pkg_info = resolve_package(args.package.value)
+    try:
+        # Get the package to build
+        pkg_info = SolisPackage.resolve(args.package.value)
 
-    # Register the package
-    IndexDatabase.register_package(pkg_info)
+        # Register the package
+        IndexDatabase.register_package(pkg_info)
 
-    # Execute steps
-    if wanted_step >= PipelineStep.CONFIGURE:
-        step_configure(pkg_info, debug)
-    if wanted_step >= PipelineStep.BUILD:
-        step_build(pkg_info)
-    if wanted_step >= PipelineStep.INSTALL:
-        step_install(pkg_info)
-    if wanted_step >= PipelineStep.PACKAGE:
-        step_package()
+        print("Hello")
+        print("Hello")
+        print("Hello")
+        print("Hello")
+        print("Hello")
+        print("Hello")
+        print("Hello")
+        print("Hello")
+
+        # Execute steps
+        if wanted_step >= PipelineStep.CONFIGURE:
+            step_configure(pkg_info, debug)
+        if wanted_step >= PipelineStep.BUILD:
+            step_build(pkg_info)
+        if wanted_step >= PipelineStep.INSTALL:
+            step_install(pkg_info)
+        if wanted_step >= PipelineStep.PACKAGE:
+            step_package()
+    except Exception as e:
+        print(e)

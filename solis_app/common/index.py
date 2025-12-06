@@ -14,8 +14,14 @@ from dataclasses import dataclass
 from enum import Enum
 from logging import getLogger
 from pathlib import Path
+from re import match
+from solis.app.common.warnings import (
+    BuildDirectoryNotFoundWarning,
+    InstallDirectoryNotFoundWarning,
+)
 from solis.utils.file_system import app_data_dir
 from solis.utils.types.patterns import LazyInit
+from warnings import warn
 
 
 INDEX_PATH = app_data_dir().joinpath("solis", "index")
@@ -65,6 +71,16 @@ class PackageInfo:
             Path(d[IndexType.BUILD_INFO]),
             Path(d[IndexType.INSTALL_INFO]),
         )
+
+
+# =============================================================================
+class PackageNotFoundError(Exception):
+    """
+    When a package could not be found
+    """
+
+    def __init__(self, pkg: str) -> None:
+        super().__init__(f"Package {pkg} cannot be found")
 
 
 # =============================================================================
@@ -164,3 +180,154 @@ class IndexDatabase:
     @classmethod
     def _get_package_index_file(cls, pkg_name: str, index_type: IndexType) -> Path:
         return cls._get_package_index_folder(pkg_name).joinpath(index_type.value)
+
+
+# =============================================================================
+class SolisPackage:
+    """
+    Package manipulator class
+    """
+
+    LOGGER = LazyInit(lambda: getLogger("SolisPackage"))
+
+    # -------------------------------------------------------------------------
+    # Resolving packages
+    # -------------------------------------------------------------------------
+    @classmethod
+    def resolve(cls, name: str) -> PackageInfo:
+        """
+        Resolve the information of the package with the given name
+
+        Parameters
+        ----------
+        name: str
+            The name of the package to find
+
+        Returns
+        -------
+        PackageInfo
+            The information of the package that we found
+        """
+        # 1/ Search in the cwd
+        pkg = cls._resolve_search_in_dir(Path.cwd(), name)
+        if pkg is not None:
+            return cls._resolve_mk_pkg_info(name, pkg)
+
+        # 2/ Search in direct children directories of cwd
+        pkg = cls._resolve_search_in_direct_childs(Path.cwd(), name)
+        if pkg is not None:
+            return cls._resolve_mk_pkg_info(name, pkg)
+
+        # 3/ Look into the index
+        pkg = IndexDatabase.find_package(name)
+        if pkg is not None:
+            return pkg
+
+        # Else, if no other mean could find the function, raise an error
+        raise PackageNotFoundError(name)
+
+    # -------------------------------------------------------------------------
+    @staticmethod
+    def _resolve_mk_pkg_info(name: str, infos: IndexInfos) -> PackageInfo:
+        """
+        Make a complete package info based on the informations found previously.
+
+        This function need the source files location at minimum.
+        """
+        if IndexType.SOURCE_INFO not in infos.keys():
+            raise RuntimeError(
+                "A source location is needed to generate the package info !"
+            )
+        source_dir = Path(infos[IndexType.SOURCE_INFO])
+
+        # Build folder information
+        if IndexType.BUILD_INFO not in infos.keys():
+            local_build = source_dir.joinpath("build").absolute()
+            parent_build = source_dir.parent.joinpath("build").absolute()
+            # Test common build location
+            if local_build.exists():
+                infos[IndexType.BUILD_INFO] = str(local_build)
+            elif parent_build.exists():
+                infos[IndexType.BUILD_INFO] = str(parent_build)
+            # Unknown build location, defaulting to local build
+            else:
+                warn(BuildDirectoryNotFoundWarning(name, str(local_build)))
+                infos[IndexType.BUILD_INFO] = str(local_build)
+
+        # Install folder information
+        if IndexType.INSTALL_INFO not in infos.keys():
+            parent_install = source_dir.parent.joinpath("install").absolute()
+            # Test common install location
+            if parent_install.exists():
+                infos[IndexType.INSTALL_INFO] = str(parent_install)
+            # Unknown install location, defaulting to parent location
+            else:
+                warn(InstallDirectoryNotFoundWarning(name, str(parent_install)))
+                infos[IndexType.INSTALL_INFO] = str(parent_install)
+
+        # Return the constructed PackageInfo object
+        return PackageInfo.from_dict(name, infos)
+
+    # -------------------------------------------------------------------------
+    @classmethod
+    def _resolve_search_in_dir(cls, directory: Path, name: str) -> IndexInfos | None:
+        """
+        Search if the package is defined in the given directory.
+
+        Parameters
+        ----------
+        directory; Path
+            The directory to inspect
+        name: str
+            The package we are looking for
+
+        Returns
+        -------
+        PackageInfo | None
+            Return the package information if the package is found, else None
+        """
+        # Look for the CMakeLists.txt file
+        cls.LOGGER().debug("Searching for package in %s", directory)
+        if not (cmakelist := directory.joinpath("CMakeLists.txt")).exists():
+            return None
+
+        # Look the package name in the file
+        cls.LOGGER().debug("Found CMakeLists.txt at %s", cmakelist)
+        with cmakelist.open("r") as f:
+            for line in f.readlines():
+                project_name = match(rf"project\({name}[ \)]", line)
+
+                # If the project name was found, returns a proto package configuration
+                if project_name is not None:
+                    return {IndexType.SOURCE_INFO: str(directory.absolute())}
+        return None
+
+    # -------------------------------------------------------------------------
+    @classmethod
+    def _resolve_search_in_direct_childs(
+        cls, directory: Path, name: str
+    ) -> IndexInfos | None:
+        """
+        Search if the package is defined in any child directory of the given dir.
+
+        Parameters
+        ----------
+        directory; Path
+            The directory to inspect
+        name: str
+            The package we are looking for
+
+        Returns
+        -------
+        PackageInfo | None
+            Return the package information if the package is found, else None
+        """
+        for dir in directory.iterdir():
+            if (
+                pkg := cls._resolve_search_in_dir(
+                    directory.joinpath(dir),
+                    name,
+                )
+            ) is not None:
+                return pkg
+        return None
