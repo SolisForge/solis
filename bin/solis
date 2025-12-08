@@ -1,0 +1,5 @@
+#!/bin/bash
+
+SOLIS_APP_PY="python3 -m solis.app"
+
+$SOLIS_APP_PY "$@"
