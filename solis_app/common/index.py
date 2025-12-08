@@ -24,9 +24,6 @@ from solis.utils.types.patterns import LazyInit
 from warnings import warn
 
 
-INDEX_PATH = app_data_dir().joinpath("solis", "index")
-
-
 # =============================================================================
 class IndexType(Enum):
     SOURCE_INFO = "source"
@@ -34,6 +31,8 @@ class IndexType(Enum):
     INSTALL_INFO = "install"
 
 
+# =============================================================================
+INDEX_PATH = app_data_dir().joinpath("solis", "index")
 IndexInfos = dict[IndexType, str]
 
 
@@ -218,7 +217,12 @@ class SolisPackage:
         if pkg is not None:
             return cls._resolve_mk_pkg_info(name, pkg)
 
-        # 3/ Look into the index
+        # 3/ Search in direct children directories of parent of cwd
+        pkg = cls._resolve_search_in_direct_childs(Path.cwd().parent, name)
+        if pkg is not None:
+            return cls._resolve_mk_pkg_info(name, pkg)
+
+        # 4/ Look into the index
         pkg = IndexDatabase.find_package(name)
         if pkg is not None:
             return pkg

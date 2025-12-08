@@ -32,15 +32,6 @@ def main(args: BuildingPipelineArguments, debug: bool = False):
         # Register the package
         IndexDatabase.register_package(pkg_info)
 
-        print("Hello")
-        print("Hello")
-        print("Hello")
-        print("Hello")
-        print("Hello")
-        print("Hello")
-        print("Hello")
-        print("Hello")
-
         # Execute steps
         if wanted_step >= PipelineStep.CONFIGURE:
             step_configure(pkg_info, debug)

@@ -29,9 +29,9 @@ def step_configure(package: PackageInfo, debug: bool = False) -> None:
         logger.info("Using CMake v%s", cmake_version)
 
         package.build_path.mkdir(exist_ok=True, parents=True)
-        args = [
+        args: list[str] = [
             cmake_exe,
-            package.src_path,
+            str(package.src_path),
             # Set install prefix
             f"-DCMAKE_INSTALL_PREFIX={package.install_path}",
         ]
@@ -67,7 +67,7 @@ def get_cmake_executable() -> tuple[str, str]:
 
     # Try to call "cmake --version" to check if present
     stdout = check_output([cmake_exe, "--version"], encoding="utf-8").strip()
-    cmake_version = match(r"^cmake version ([0-9]+\.[0-9]+\.[0-9]+)", stdout)
+    cmake_version = match(r"^cmake version (\d+\.\d+\.\d+)", stdout)
     if cmake_version is None:
         raise CMakeNotFoundError("could not find CMake as `cmake`")
     return cmake_exe, cmake_version.group(1)
