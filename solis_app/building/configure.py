@@ -34,6 +34,7 @@ def step_configure(package: PackageInfo, debug: bool = False) -> None:
             str(package.src_path),
             # Set install prefix
             f"-DCMAKE_INSTALL_PREFIX={package.install_path}",
+            "-DCOMPILE_TESTS=ON",
         ]
         if debug:
             args.append("--log-level=DEBUG")
